@@ -95,8 +95,8 @@ public class GenericTree<E> extends AbstractTree<E> {
     }
 
     /*
-    This method is to fill the tree based on user input. The user is prompted to enter the name of a file that branches
-    off of the "within" the "current" file, meaning they are required to enter a child of the current parent.
+    This method is to fill the tree based on user input. The user is prompted to enter the name of a file that is
+    "within" the "current" file, meaning they are required to enter a child of the current parent.
     The user has the option to type "BACK" to "exit the current file", which would be to move up a level in the tree
         - in this case, the new current node is the parent of the previous current node
     The user also has the option to type "ESCAPE" when finished. This simply terminates the tree building process
