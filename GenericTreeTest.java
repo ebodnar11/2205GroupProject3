@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.File;
 
 public class GenericTreeTest {
     public static void main(String[] args){
@@ -36,23 +37,41 @@ public class GenericTreeTest {
         gt.clearList();
         System.out.println("\n-----------------------------");
 
-        //This is the bonus - to take a directory path from the user and build the tree based on given elements
-        System.out.println("Input Sequence: ");
+        //Everything below this relates to the bonus
+
+        //Here we take the name of a directory from the user in order to add the sub-directories and sub-files to a tree
+        //If I had a file named 'test' on my desktop, I would enter /Users/username/Desktop/test when prompted for the name of the directory path (on a mac)
         Scanner reader = new Scanner(System.in);
+        System.out.println("Enter the name of the directory path: ");
+        String directoryPath = reader.nextLine();
 
-        //Start the process by requesting the name of the main file.
-        //This becomes the root and we execute fillByNode, beginning at the root
-        System.out.println("Enter the name of the main file: ");
-        String temp = reader.nextLine();
-        gt.addRoot(temp);
-        gt.fillByNode(gt.root());
+        //Create a File object named mainDir as well as a new Tree object (as gt has been filled already)
+        File mainDir = new File(directoryPath);
+        GenericTree<String> newTree = new GenericTree<>();
 
-        //Calling preorder traversal method on the new tree
-        ArrayList tester = gt.preOrder(gt.root());
-        System.out.print("Tree has been created. \nResults: ");
-        for(Object item : tester){
-            System.out.print(item + ", ");
+        //Check to see if mainDir exists and has sub-files/directories (so see if it is a directory)
+        //If the conditions are true, we call the giveFiles method
+        if(mainDir.exists() && mainDir.isDirectory()){
+            File[] fArray = mainDir.listFiles();
+            System.out.println("Reading files from directory: " + mainDir);
+            newTree.giveFiles(fArray, 0, 0);
         }
-        System.out.print("\b\b\n");
+
+        //Preorder traversal of the directory/file tree
+        ArrayList pre = newTree.preOrder(newTree.root());
+        System.out.print("Preorder traversal of directory: ");
+        for(Object elem : pre){
+            System.out.print(elem + ", ");
+        }
+        System.out.println("\b\b");
+        newTree.clearList();
+
+        //Postorder traversal of the directory/file tree
+        ArrayList post = newTree.postOrder(newTree.root());
+        System.out.print("Postorder traversal of directory: ");
+        for(Object elem : post){
+            System.out.print(elem + ", ");
+        }
+        System.out.println("\b\b");
     }
 }
