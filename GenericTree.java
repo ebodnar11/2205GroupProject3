@@ -1,6 +1,6 @@
 import java.util.Iterator;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.io.File;
 
 public class GenericTree<E> extends AbstractTree<E> {
 
@@ -95,59 +95,36 @@ public class GenericTree<E> extends AbstractTree<E> {
     }
 
     /*
-    This method is to fill the tree based on user input. The user is prompted to enter the name of a file that is
-    "within" the "current" file, meaning they are required to enter a child of the current parent.
-    The user has the option to type "BACK" to "exit the current file", which would be to move up a level in the tree
-        - in this case, the new current node is the parent of the previous current node
-    The user also has the option to type "ESCAPE" when finished. This simply terminates the tree building process
-    If the user does not input "BACK", then we insert the value we read from the user as a child to the "current" node
-    However, there are two cases here:
-    1. The user inputted value will be an external node
-        - external nodes in this file system are NOT concluded with a "/", so when this is the case of the user input,
-          we do not try to branch off of this node as we know it is external. In this case, we call the fillByNode method
-          recursively with the same "current" node as before
-          - It is important to note that all internal nodes must end with "/" for this to work!!!
-    2. The user inputted value will be an internal node
-        - this is the "else" case, and in this case we call the fillByNode method recursively with the child node as the
-          new "current" node so as to move downwards in the tree
-    If the user inputs "BACK", then we call the fillByNode method recursively with the parent of the previous "current" node
-    as the new "current" node so as to move back upwards in the tree
-        - This will allow us to move one level upwards in the tree (eg. homeworks/ to cs016/)
-    Sorry for writing an essay
+    giveFiles method to accomplish the bonus task:
+    three parameters - an array of files, the current index to be analyzed, and the level (for root purposes)
+    First if statement: termination condition - this stops the recursive loop once all of the sub-files/directories have been added to the tree
+    Second if statement: if the current File is a directory
+        insert the current File as the child of its parent file in the tree
+        then recursively call the giveFiles method while moving up a level (in order to avoid adding the root again)
+            this allows us to move to the first sub-file of the directory
+    Else if statement: if the current File is a file - insert it as a child to its parent file in the tree
+    The internal if statement of both the if and else if statement is to handle the adding of the root
+        Both of them are there to add the root (parent of the current File) when level = index = 0 (which can only occur once)
+        We need this within both statements in order to handle the case of there only being files or only being directories within the root file
+    Finally, if the method is not terminated already, recursively call the giveFiles method again while moving up an index point
      */
-    public void fillByNode(Node<E> current){
-        Scanner reader = new Scanner(System.in);
-        System.out.println("Enter the name of a file that is within " + current.getElement() + " " +
-                ". Type \"BACK\" to exit the current file. Type \"ESCAPE\" when finished.");
-        String temp = reader.nextLine();
-        Node<E> child = new Node<E>((E) temp);
-        if(temp.equals("ESCAPE")){
+    public void giveFiles(File[] fArray, int index, int level){
+        if(index == fArray.length){
             return;
         }
-        if(temp.equals("BACK") && current == root()){
-            return;
-        }
-        else if(!temp.equals("BACK")) {
-            insertNode(current, child);
-            if(!internalNode(temp)) {
-                fillByNode(current);
+        if(fArray[index].isDirectory()){
+            if(index == 0 && level == 0){
+                addRoot((E) fArray[index].getParentFile().getName());
             }
-            else{
-                fillByNode(child);
+            insert((E) fArray[index].getParentFile().getName(), (E) fArray[index].getName());
+            giveFiles(fArray[index].listFiles(), 0, level + 1);
+        }
+        else if(fArray[index].isFile()){
+            if(index == 0 && level == 0){
+                addRoot((E) fArray[index].getParentFile().getName());
             }
+            insert((E) fArray[index].getParentFile().getName(), (E) fArray[index].getName());
         }
-        else{
-            fillByNode(current.getParent());
-        }
-        return;
+        giveFiles(fArray, ++index, level);
     }
-
-    //This method simply detects whether or not a node ends with "/", which would make it internal
-    public boolean internalNode(String input){
-        if(input.charAt(input.length() - 1) == '/'){
-            return true;
-        }
-    return false;
-    }
-
 }
